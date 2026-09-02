@@ -7,9 +7,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ app/
 COPY model/heart_disease_model.joblib model/heart_disease_model.joblib
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
 EXPOSE 8000
 
-# Shell form (not exec form) so $PORT expands. Railway/Render inject their own PORT
-# at runtime; 8000 is only the fallback for local `docker run` without -e PORT=...
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# entrypoint.sh resolves $PORT (Railway/Render inject their own; 8000 is the local
+# fallback) and uses `exec` so uvicorn becomes PID 1 and receives SIGTERM directly.
+CMD ["./entrypoint.sh"]
