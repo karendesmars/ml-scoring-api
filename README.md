@@ -93,6 +93,13 @@ Covers: health check, a valid prediction request, an out-of-range field, and a m
 
 ## Deployment
 
-Deployed on [Railway](https://railway.app) / [Render](https://render.com) directly from this repo's `Dockerfile` (no local Docker installation needed on the deploying machine, both platforms build the image from source).
+Deployed on [Railway](https://railway.app) directly from this repo's `Dockerfile` (no local Docker installation needed on the deploying machine, Railway builds the image from source).
 
-Live URL: _to be added once deployed_
+Live URL: https://ml-scoring-api-production.up.railway.app
+
+```
+curl https://ml-scoring-api-production.up.railway.app/health
+curl -X POST https://ml-scoring-api-production.up.railway.app/predict \
+  -H "Content-Type: application/json" \
+  -d '{"age":52,"sex":1,"cp":0,"trestbps":125,"chol":212,"fbs":0,"restecg":1,"thalach":168,"exang":0,"oldpeak":1.0,"slope":2,"ca":2,"thal":3}'
+```
