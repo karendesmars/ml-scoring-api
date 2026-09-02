@@ -72,6 +72,26 @@ Invalid input (missing fields, or a value outside the ranges observed in the tra
 
 ---
 
+## Example: model behavior on two contrasting profiles
+
+```bash
+# Profile A: younger, healthier-looking indicators
+curl -X POST https://ml-scoring-api-production.up.railway.app/predict \
+  -H "Content-Type: application/json" \
+  -d '{"age":29,"sex":0,"cp":0,"trestbps":110,"chol":180,"fbs":0,"restecg":0,"thalach":190,"exang":0,"oldpeak":0.0,"slope":2,"ca":0,"thal":2}'
+# -> {"prediction":1,"probability":0.942}
+
+# Profile B: older, several risk factors
+curl -X POST https://ml-scoring-api-production.up.railway.app/predict \
+  -H "Content-Type: application/json" \
+  -d '{"age":68,"sex":1,"cp":3,"trestbps":160,"chol":286,"fbs":1,"restecg":2,"thalach":108,"exang":1,"oldpeak":3.2,"slope":1,"ca":3,"thal":3}'
+# -> {"prediction":0,"probability":0.029}
+```
+
+This looks backwards at first: the younger profile is predicted as higher risk, the older one with more risk factors as lower risk. This is not a bug in the API. It comes from the underlying model itself: as documented in [pandas-heart-disease](https://github.com/karendesmars/pandas-heart-disease), `sex` has a strong negative coefficient in this LogisticRegression (being male pushes the prediction toward "no disease"). Profile A is female (`sex=0`), Profile B is male (`sex=1`), and that one field carries enough weight to flip the result even against several other risk factors going the other way. This is a known limitation of the model on this specific 303-patient dataset, not something to fix at the API level, the API is correctly serving whatever the model predicts.
+
+---
+
 ## Running with Docker
 
 ```
